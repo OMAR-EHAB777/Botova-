@@ -1,0 +1,7 @@
+.env
+to-do.txt
+Pipfile
+Pipfile.lock
+pdfs/
+faiss_index/
+Day 3 Building Chatbots.pptx

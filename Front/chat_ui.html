@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/3/3a/Assessment_brain_icon.png" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <!-- Include jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+<style>
+  /* Global Styles */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f9f9f9;
+    color: #333;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Navbar and Dark Mode Button */
+  .navbar {
+    width: 100%;
+    height: 50px;
+    background: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .theme-toggle-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #007bff;
+    transition: color 0.3s ease;
+  }
+  
+  .theme-toggle-btn:hover {
+    color: #0056b3;
+  }
+  
+  .nav-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    color: #fff;
+    margin: 0 15px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-btn:hover,
+  .nav-btn.active {
+    color: #ffa500;
+    font-weight: bold;
+  }
+  
+  /* Main Chat Container */
+  #chat-container {
+    width: 60%;
+    margin: 70px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  #chat-box {
+    height: 400px;
+    overflow-y: scroll;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f0f0f0;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Message Styles */
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .message.user {
+    text-align: right;
+    justify-content: flex-end;
+  }
+  
+  .message.ai {
+    text-align: left;
+    justify-content: flex-start;
+  }
+  
+  .message img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .message span {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+  }
+  
+  .message.user span {
+    background: #007bff;
+    color: white;
+  }
+  
+  .message.ai span {
+    background: #e0e0e0;
+    color: #333;
+  }
+  
+  /* Timestamp */
+  .timestamp {
+    font-size: 0.7em;
+    color: #999;
+    display: inline;
+    margin-left: 5px;
+    background: none; /* Remove any background */
+    padding: 0; /* Remove padding */
+  }
+  
+  /* Input and Button Styles */
+  #input-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  #message-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: background 0.3s ease, color 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  #send-btn,
+  #save-pdf-btn,
+  #clearChatBtn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    background: #007bff;
+    color: white;
+    margin-left: 5px;
+  }
+  
+  #send-btn:hover {
+    background: #0056b3;
+  }
+  
+  /* Action Buttons Specific Style */
+  #save-pdf-btn {
+    background: #28a745;
+  }
+  
+  #save-pdf-btn:hover {
+    background: #218838;
+    transform: scale(1.05);
+  }
+  
+  #clearChatBtn {
+    background: #dc3545;
+  }
+  
+  #clearChatBtn:hover {
+    background: #c82333;
+    transform: scale(1.05);
+  }
+  
+  /* Loader */
+  .loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+    margin-right: 10px;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Dark Mode */
+  body.dark-mode {
+    background: #333;
+    color: #f0f0f0;
+  }
+  
+  #chat-container.dark-mode {
+    background: #444;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  #chat-box.dark-mode {
+    background: #555;
+    color: white;
+    border: 1px solid #666;
+  }
+  
+  .message.user.dark-mode span {
+    background: #007bff;
+    color: white;
+  }
+  
+  .message.ai.dark-mode span {
+    background: #666;
+    color: white;
+  }
+  
+  #message-input.dark-mode {
+    background: #666;
+    color: white;
+    border: 1px solid #777;
+  }
+  
+  #send-btn.dark-mode,
+  #save-pdf-btn.dark-mode,
+  #clearChatBtn.dark-mode {
+    background: #007bff;
+    color: white;
+  }
+  
+  .loader.dark-mode {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #00d8ff;
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    #chat-container {
+      width: 90%;
+    }
+  
+    #save-pdf-btn,
+    #clearChatBtn {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+</style>
+
+</head>
+<body>
+  <div class="navbar">
+    <button id="theme-toggle-btn" class="theme-toggle-btn">🌙</button>
+    <button class="nav-btn" onclick="setChatType('conversational')">Conversational</button>
+    <button class="nav-btn" onclick="setChatType('rag')">RAG</button>
+    <button class="nav-btn" onclick="setChatType('tool')">Tool</button>
+  </div>
+
+<div id="chat-container">
+    <div id="chat-box"></div>
+    <div id="input-container">
+      <input type="text" id="message-input" placeholder="Type your message here...">
+      <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+      <button id="save-pdf-btn"><i class="fas fa-download"></i></button>
+      <button id="clearChatBtn"><i class="fas fa-trash-alt"></i></button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+<script>
+  const chatBox = document.getElementById('chat-box');
+  const messageInput = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  const savePdfBtn = document.getElementById('save-pdf-btn');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+
+  let chatHistory = [];
+  let currentChatType = 'conversational'; // Default chat type
+
+  // Initialize dark mode if set in local storage
+  if (localStorage.getItem('darkMode') === 'true') {
+    enableDarkMode();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+      enableDarkMode();
+    } else {
+      disableDarkMode();
+    }
+  });
+
+  themeToggleBtn.addEventListener('click', toggleDarkMode);
+
+  function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    if (isDarkMode) {
+      enableDarkMode();
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      disableDarkMode();
+      localStorage.setItem('darkMode', 'false');
+    }
+  }
+
+  function enableDarkMode() {
+    document.body.classList.add('dark-mode');
+    document.getElementById('chat-container').classList.add('dark-mode');
+    document.getElementById('chat-box').classList.add('dark-mode');
+    document.getElementById('message-input').classList.add('dark-mode');
+    document.getElementById('send-btn').classList.add('dark-mode');
+    themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>'; // Moon icon for dark mode
+  }
+
+  function disableDarkMode() {
+    document.body.classList.remove('dark-mode');
+    document.getElementById('chat-container').classList.remove('dark-mode');
+    document.getElementById('chat-box').classList.remove('dark-mode');
+    document.getElementById('message-input').classList.remove('dark-mode');
+    document.getElementById('send-btn').classList.remove('dark-mode');
+    themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Sun icon for light mode
+  }
+
+  function appendMessage(role, content, isLoader = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+
+    const messageContainer = document.createElement('div');
+    messageContainer.className = 'message-container';
+
+    const icon = document.createElement('img');
+    icon.src = role === 'user'
+      ? 'https://upload.wikimedia.org/wikipedia/commons/7/70/User_icon_BLACK-01.png'
+      : 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Assessment_brain_icon.png';
+    messageContainer.appendChild(icon);
+
+    if (isLoader) {
+      const loader = document.createElement('div');
+      loader.className = 'loader';
+      messageContainer.appendChild(loader);
+    } else {
+      const messageText = document.createElement('span');
+      messageText.innerHTML = content;
+      messageContainer.appendChild(messageText);
+    }
+
+    const timestamp = document.createElement('span');
+    timestamp.className = 'timestamp';
+    const time = new Date().toLocaleTimeString();
+    timestamp.textContent = time;
+    messageContainer.appendChild(timestamp);
+
+    messageDiv.appendChild(messageContainer);
+    chatBox.appendChild(messageDiv);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  messageInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+
+  async function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+  
+    appendMessage('user', message);
+    chatHistory.push({ role: 'human', content: message });
+    messageInput.value = '';
+  
+    appendMessage('ai', '', true);
+  
+    try {
+      const response = await fetch(`http://localhost:8000/chat/${currentChatType}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: chatHistory, message }),
+      });
+      const data = await response.json();
+      const reply = data.reply;
+  
+      chatBox.lastChild.remove();
+      appendMessage('ai', reply.content);
+      chatHistory = data.updated_history;
+    } catch (err) {
+      chatBox.lastChild.remove();
+      appendMessage('ai', 'Sorry, I am unable to process your request right now.');
+    }
+  }
+
+  savePdfBtn.addEventListener('click', saveChatAsPDF);
+
+  function saveChatAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+
+    chatHistory.forEach((chat, index) => {
+      const yPosition = 10 + (index * 10);
+      doc.text(`${chat.role.toUpperCase()}: ${chat.content}`, 10, yPosition);
+    });
+
+    doc.save('chat-history.pdf');
+  }
+
+  clearChatBtn.addEventListener('click', clearChat);
+
+  function clearChat() {
+    chatHistory = [];
+    chatBox.innerHTML = '';
+    appendMessage('system', 'Chat has been cleared. You can start a new conversation.');
+  }
+
+  function setChatType(chatType) {
+    currentChatType = chatType;
+    chatHistory = [];
+    chatBox.innerHTML = '';
+    appendMessage('system', `Switched to ${chatType} chatbot.`);
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`.nav-btn[onclick="setChatType('${chatType}')"]`).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+
+
+```markdown
+# Botova: AI-Powered Chatbot Platform
+
+Botova is a unique and innovative platform that harnesses the power of artificial intelligence to create adaptive and intelligent chatbots. The name "Botova" blends “bot” with the Latin suffix “-ova,” symbolizing change, transformation, and evolution. This combination encapsulates the core of the platform: dynamic AI-driven bots that evolve and adapt over time to meet the needs of businesses and users alike.
+
+## Project Overview
+
+At its core, Botova is designed to revolutionize how bots interact with users and tackle complex tasks. Whether it's providing context-aware conversations, automating tasks like HR operations, or transforming raw data into actionable insights via dynamic text-to-SQL queries and reports, Botova is equipped to handle a wide range of applications.
+
+The “ova” in Botova emphasizes the platform's adaptability and continuous improvement. Unlike static systems, the AI bots in Botova are designed to grow smarter with each interaction, learning and evolving to offer more accurate and meaningful responses. This flexibility allows businesses to deploy bots that are not only intelligent but also capable of evolving with the changing demands of their industries.
+
+## Future Vision
+
+With plans to expand into a fully-fledged SaaS solution, Botova aims to empower busi
+
+## Project Structure
+
+- **main.py**: Initializes the FastAPI server and configures chatbot endpoints.
+- **chat_ui.html**: Provides a user interface to interact with the chatbots.
+- **conversational_bot.py**: Handles straightforward conversational responses using OpenAI's language model.
+- **rag_bot.py**: Implements Retrieval-Augmented Generation, utilizing FAISS for efficient document retrieval and response generation.
+- **tool_bot.py**: Integrates external tools, such as order details and weather APIs, to enhance responses.
+- **static/**: Contains additional static files like CSS, JS, and images, if any.
+
+## Setup and Installation
+
+### Requirements
+
+- Python 3.x
+- FastAPI
+- Uvicorn
+- LangChain
+- dotenv
+
+### Installation
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/OMAR-EHAB777/Botova-Ai.git
+    cd Botova-Ai
+    ```
+
+2. **Install dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. **Set up your environment variables:**
+
+    Create a `.env` file and add your OpenAI API key:
+
+    ```
+    OPENAI_API_KEY=your_openai_api_key
+    ```
+
+4. **Run the FastAPI server:**
+
+    ```bash
+    uvicorn main:app --reload
+    ```
+
+5. **Serve the static HTML file:**
+
+    Navigate to your `Front` directory and run a local server:
+
+    ```bash
+    python -m http.server 8001
+    ```
+
+    Access the chat UI at `http://localhost:8001/chat_ui.html`.
+
+## Usage
+
+- **Switch between chatbot types**: Use the buttons in the navbar to select Conversational, RAG, or Tool modes.
+- **Dark Mode**: Toggle dark mode with the moon/sun icon.
+- **Chat**: Type messages and interact with the AI using the designated input field.
+- **Save Chat History**: Download chat history as a PDF.
+- **Clear Chat**: Reset the chat window.
+
+## Troubleshooting
+
+If experiencing any issues, ensure:
+
+- Both the FastAPI server and the static server are running properly.
+- CORS is correctly configured in `main.py`.
+- URLs in the fetch requests are correctly pointing to the FastAPI server.
+
+
+## Future Enhancements
+
+- Add more sophisticated NLP tasks.
+- Expand tool functions to connect with real APIs.
+- Enhance UI for improved user experience.
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
+```
